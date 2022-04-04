@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Header from '../components/header';
+import Header from '../components/Header';
 import { dispatchCurrence } from '../actions';
 import Form from '../components/form';
 
