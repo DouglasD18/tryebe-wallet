@@ -13,20 +13,24 @@ class Table extends React.Component {
       exchangeRates,
       id,
     } = expense;
-    const valueInitial = Number(value);
-    const factor = Number(exchangeRates[currency].ask);
-    const valueConverted = valueInitial * factor;
+    const factor = exchangeRates[currency].ask;
+    const valueConverted = Number(value * factor);
+    const name = exchangeRates[currency].name.split('/', 1);
 
     return (
       <tr key={ id }>
         <td>{ description }</td>
         <td>{ tag }</td>
         <td>{ method }</td>
-        <td>{ value }</td>
-        <td>{ currency }</td>
-        <td>{ exchangeRates.ask }</td>
+        <td>{ Number(value).toFixed(2) }</td>
+        <td>
+          { currency === 'USD'
+            ? 'Dólar Comercial'
+            : name }
+        </td>
+        <td>{ Number(factor).toFixed(2) }</td>
         <td>{ valueConverted.toFixed(2) }</td>
-        <td>BRL</td>
+        <td>Real</td>
         <td>Editar/Excluir</td>
       </tr>
     );
