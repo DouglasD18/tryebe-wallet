@@ -1,8 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { excludExpense } from '../actions';
 
 class Table extends React.Component {
+  toExclude(param) {
+    const { expenses, excluded } = this.props;
+
+    const filtered = expenses.filter((e) => e.id !== param);
+    excluded(filtered);
+  }
+
   addInfos(expense) {
     const {
       currency,
@@ -31,7 +39,18 @@ class Table extends React.Component {
         <td>{ Number(factor).toFixed(2) }</td>
         <td>{ valueConverted.toFixed(2) }</td>
         <td>Real</td>
-        <td>Editar/Excluir</td>
+        <td>
+          <button type="button">
+            Editar
+          </button>
+          <button
+            type="button"
+            data-testid="delete-btn"
+            onClick={ () => this.toExclude(id) }
+          >
+            Excluir
+          </button>
+        </td>
       </tr>
     );
   }
@@ -40,7 +59,7 @@ class Table extends React.Component {
     const { expenses } = this.props;
 
     return (
-      <>
+      <tbody>
         <tr>
           <th>Descrição</th>
           <th>Tag</th>
@@ -53,20 +72,20 @@ class Table extends React.Component {
           <th>Editar/Excluir</th>
         </tr>
         { expenses.map((e) => (this.addInfos(e)))}
-      </>
+      </tbody>
     );
   }
-
-  // Descrição, Tag, Método de pagamento, Valor, Moeda, Câmbio utilizado, Valor convertido, Moeda de conversão e Editar/Excluir.
 
   render() {
     const { expenses } = this.props;
 
     return (
-      <>
+      <main>
         <h3>Tabela de despesas</h3>
-        { expenses.length > 0 ? this.createTable() : <p>Sem despesa</p> }
-      </>
+        <table>
+          { expenses.length > 0 ? this.createTable() : <p>Sem despesa</p> }
+        </table>
+      </main>
     );
   }
 }
@@ -85,10 +104,15 @@ Table.propTypes = {
       ),
     }),
   ).isRequired,
+  excluded: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
 });
 
-export default connect(mapStateToProps)(Table);
+const mapDispatchToProps = (dispatch) => ({
+  excluded: (state) => dispatch(excludExpense(state)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table);
