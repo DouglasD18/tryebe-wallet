@@ -1,14 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { dispatchCotation } from '../actions';
+import { dispatchCotation, edit, toEditExpenses } from '../actions';
 
 class Form extends React.Component {
   constructor() {
     super();
 
     this.onChange = this.onChange.bind(this);
-    this.onClick = this.onClick.bind(this);
+    this.onClickAdd = this.onClickAdd.bind(this);
+    this.onClickEdit = this.onClickEdit.bind(this);
+    this.addButton = this.addButton.bind(this);
+    this.editButton = this.editButton.bind(this);
 
     this.state = {
       id: 0,
@@ -20,7 +23,7 @@ class Form extends React.Component {
     };
   }
 
-  onClick() {
+  onClickAdd() {
     const { addCotationDispatch } = this.props;
 
     addCotationDispatch(this.state);
@@ -32,14 +35,46 @@ class Form extends React.Component {
     }));
   }
 
+  onClickEdit() {
+    const { turnFalse, toEdit, expenses, sendEdited, idNumber } = this.props;
+
+    sendEdited(this.state, expenses, idNumber);
+    turnFalse(toEdit);
+
+    this.setState({
+      value: '',
+      description: '',
+    });
+  }
+
   onChange({ target }) {
     const { name, value } = target;
 
     this.setState({ [name]: value });
   }
 
+  addButton() {
+    return (
+      <button
+        type="button"
+        onClick={ this.onClickAdd }
+      >
+        Adicionar despesa
+      </button>);
+  }
+
+  editButton() {
+    return (
+      <button
+        type="button"
+        onClick={ this.onClickEdit }
+      >
+        Editar despesa
+      </button>);
+  }
+
   render() {
-    const { currencies } = this.props;
+    const { currencies, toEdit } = this.props;
     const {
       value,
       description,
@@ -76,6 +111,7 @@ class Form extends React.Component {
             name="currency"
             value={ currency }
             id="currency"
+            data-testid="currency-input"
             onChange={ this.onChange }
           >
             { currencies.map((curr) => <option key={ curr }>{ curr }</option>) }
@@ -109,12 +145,7 @@ class Form extends React.Component {
             <option value="Saúde">Saúde</option>
           </select>
         </label>
-        <button
-          type="button"
-          onClick={ this.onClick }
-        >
-          Adicionar despesa
-        </button>
+        { toEdit ? this.editButton() : this.addButton() }
       </form>
     );
   }
@@ -123,14 +154,36 @@ class Form extends React.Component {
 Form.propTypes = {
   currencies: PropTypes.arrayOf(PropTypes.string).isRequired,
   addCotationDispatch: PropTypes.func.isRequired,
+  toEdit: PropTypes.bool.isRequired,
+  turnFalse: PropTypes.func.isRequired,
+  sendEdited: PropTypes.func.isRequired,
+  expenses: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      value: PropTypes.string.isRequired,
+      description: '',
+      currency: PropTypes.string.isRequired,
+      method: PropTypes.string.isRequired,
+      tag: PropTypes.string.isRequired,
+      exchangeRates: PropTypes.objectOf(
+        PropTypes.objectOf(PropTypes.string),
+      ),
+    }),
+  ).isRequired,
+  idNumber: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   currencies: state.wallet.currencies,
+  toEdit: state.edit.verify,
+  expenses: state.wallet.expenses,
+  idNumber: state.edit.id,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   addCotationDispatch: (value) => dispatch(dispatchCotation(value)),
+  turnFalse: (state) => dispatch(edit(state)),
+  sendEdited: (state, expenses, id) => dispatch(toEditExpenses(state, expenses, id)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Form);

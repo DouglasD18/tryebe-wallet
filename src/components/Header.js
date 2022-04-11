@@ -22,13 +22,13 @@ class Header extends React.Component {
 
     return (
       <header>
-        <p data-testid="email-field">
+        <p data-testid="email-field" id="email">
           {`Email: ${email}`}
         </p>
-        <p data-testid="total-field">
+        <p data-testid="total-field" id="total-expense">
           { `${total.toFixed(2)}` }
         </p>
-        <p data-testid="header-currency-field">
+        <p data-testid="header-currency-field" id="brl">
           BRL
         </p>
       </header>

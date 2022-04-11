@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { excludExpense } from '../actions';
+import { excludExpense, newId, edit } from '../actions';
 
 class Table extends React.Component {
   toExclude(param) {
@@ -9,6 +9,13 @@ class Table extends React.Component {
 
     const filtered = expenses.filter((e) => e.id !== param);
     excluded(filtered);
+  }
+
+  toEdit(param) {
+    const { newIdNumber, toVerify, verify } = this.props;
+
+    newIdNumber(param);
+    toVerify(verify);
   }
 
   addInfos(expense) {
@@ -26,7 +33,7 @@ class Table extends React.Component {
     const name = exchangeRates[currency].name.split('/', 1);
 
     return (
-      <tr key={ id }>
+      <tr key={ id } className="expenses">
         <td>{ description }</td>
         <td>{ tag }</td>
         <td>{ method }</td>
@@ -40,7 +47,11 @@ class Table extends React.Component {
         <td>{ valueConverted.toFixed(2) }</td>
         <td>Real</td>
         <td>
-          <button type="button">
+          <button
+            type="button"
+            data-testid="edit-btn"
+            onClick={ () => this.toEdit(id) }
+          >
             Editar
           </button>
           <button
@@ -105,14 +116,20 @@ Table.propTypes = {
     }),
   ).isRequired,
   excluded: PropTypes.func.isRequired,
+  newIdNumber: PropTypes.func.isRequired,
+  toVerify: PropTypes.func.isRequired,
+  verify: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
+  verify: state.edit.verify,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   excluded: (state) => dispatch(excludExpense(state)),
+  newIdNumber: (state) => dispatch(newId(state)),
+  toVerify: (state) => dispatch(edit(state)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Table);
